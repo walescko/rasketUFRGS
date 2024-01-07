@@ -12,6 +12,7 @@
                     (rectangle 50 75 "solid" "blue"))))
 
 (define CONTORNO_PRETO (rectangle 110 160 "outline" "white"))
+;usando a borda branca porque no meu computador estou usando o racket no modo dark.
 
 (define CORINGA (overlay CIRCULO_BRANCO CONTORNO_PRETO QUADRADOS_COLORIDOS))
 
