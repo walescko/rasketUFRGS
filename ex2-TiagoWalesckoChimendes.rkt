@@ -3,6 +3,7 @@
 #reader(lib "htdp-beginner-reader.ss" "lang")((modname ex2-TiagoWalesckoChimendes) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #f #t none #f () #f)))
 ;#lang racket
 (require 2htdp/image)
+(require racket/format)
 
 ;; Nome: TIAGO WALESCKO CHIMENDES    matrícula 97641
 
@@ -23,6 +24,7 @@
 (define CURINGA_COMPRA4 -4)
 (define color_test "white")
 
+
 ;; Constantes que definem as imagens que aparecerão nas cartas especiais:
 (define IMG_PULA_VEZ  (text "Ø" 60 color_test))
 (define IMG_COMPRA2   (text "+2" 60 color_test))
@@ -40,12 +42,13 @@
             (beside (rectangle 50 75 "solid" "yellow")
                     (rectangle 50 75 "solid" "blue"))))
 
+
 (define CONTORNO_PRETO (rectangle 110 160 "outline" color_test))
 ;usando a borda branca porque no meu computador estou usando o racket no modo dark.
 
-(define CORINGA (overlay CIRCULO_BRANCO CONTORNO_PRETO QUADRADOS_COLORIDOS))
+(define CORINGACARD (overlay CIRCULO_BRANCO CONTORNO_PRETO QUADRADOS_COLORIDOS))
 
-CORINGA
+CORINGACARD
 
 
 
@@ -84,7 +87,7 @@ CORINGA
     [else "colors"]
     
     ))
-        
+
 ;;; Testes:
 (check-expect (traduz-cor "vermelho") "red")
 (check-expect (traduz-cor "verde") "green")
@@ -118,7 +121,7 @@ CORINGA
   (rectangle 100 150 "solid" (traduz-cor color)))
 
 (define (escolhe-fundo color)
-  (overlay CIRCULO_BRANCO CONTORNO_PRETO (FUNDO color)))
+   (overlay CIRCULO_BRANCO CONTORNO_PRETO (FUNDO color)))
 
 (escolhe-fundo "amarelo")
 (escolhe-fundo "vermelho")
@@ -172,4 +175,93 @@ CORINGA
 (escolha-simbolo -3 "preto")
 (escolha-simbolo -4 "preto")
 (escolha-simbolo -5 "preto")
+
+;; ========================
+;; DESENHA-CARTA
+;; ========================
+;; desenha-carta : Número String -> Imagem
+;; Objetivo: Dados um número e uma cor, representando uma carta de UNO,
+;; gera uma imagem para esta carta,
+;; Exemplos:
+;; (desenha-carta 4 "vermelho")  desenha a carta número 4 vermelha
+;; (desenha-carta COMPRA4 "colorido")    desenha a carta curinga compra 4
+;(define (desenha-carta um-numero uma-cor)
+;      (overlay    ;; sobrepor
+;          (escolhe-simbolo um-numero) ;; a imagem que representa o valor um-numero 
+;          (escolhe-fundo uma-cor)))   ;; com a imagem do fundo da carta da uma-cor
+
+(define (desenha-carta tipo color)
+  (overlay
+   (escolha-simbolo tipo color)
+   (escolhe-fundo color)))
+
+(define COMPRA4 CURINGA_COMPRA4)
+(desenha-carta 4 "vermelho")
+(desenha-carta 4 "verde")
+(desenha-carta 4 "azul")
+(desenha-carta 4 "amarelo")
+;(desenha-carta COMPRA4 "colorido")
+
+;;===============================================================
+;; 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 
+;;===============================================================
+;; ========================
+;; JOGADA-VÁLIDA?
+;; ========================
+;; jogada-válida? : ...... -> ......
+;; Objetivo: A função analiza duas cartas (representadas por 4 argumentos:um
+;; número e uma string, representando a carta da mão, e um número e uma string,
+;; representando a carta da mesa, nesta ordem) e verifica se é possível
+;; jogar uma sobre a outra, de acordo com as regras do UNO
+;; Exemplos:
+;;    (jogada-válida? 2 "vermelho" 4 "vermelho")=  #t 
+;;    (jogada-válida? 2 "vermelho" CURINGA "colorido") = #t 
+;;    (jogada-válida? CURINGA "colorido" 2 "vermelho") = #t
+;;    (jogada-válida? 2 "vermelho" 2 "verde") = ...
+;;    (jogada-válida? 2 "vermelho" 3 "verde") = ...
+
+(define (jogada-válida?  number_hand color_hand number_table color_table)
+  (cond
+    [(or (= number_hand number_table) (string=? color_hand color_table)) #t]
+    [else #f]
+   ))
+
+   (jogada-válida? 5 "vermelho" 4 "vermelho");=  #t
+   (jogada-válida? 4 "verde" 4 "vermelho");=  #t
+   (jogada-válida? 2 "amarelo" 9 "vermelho");=  #f
+   ;
+;;; Testes:
+(check-expect (jogada-válida? 2 "vermelho" 4 "vermelho") #t)
+(check-expect (jogada-válida? 4 "verde" 4 "vermelho") #t)
+(check-expect (jogada-válida? 2 "verde" 4 "vermelho") #f)
+
+;;===============================================================
+;; 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5
+;;===============================================================
+;; ========================
+;; MOSTRA-JOGADA
+;; ========================
+;; mostra-jogada: ...... -> ......
+;; Objetivo: A função analiza duas cartas (representadas por 4 argumentos:um
+;; número e uma string, representando a carta da mesa, e um número e uma string,
+;; representando a carta da mão, nesta ordem) e verifica se é possível
+;; jogar uma sobre a outra, de acordo com as regras do UNO, desenhando uma
+;; imagem mostrando as cartas e se é possível fazer a jogada ou não.
+;;Exemplos
+;;(mostra-jogada 2 "vermelho" 4 "vermelho") ;#true mostra carta da mesa vermelha 2 e a carta da mão vermelha 4
+;;(mostra-jogada 2 "verde" 4 "vermelho") ;#false mostra carta da mesa verde 2 e a carta da mão vermelha 4
+  ;;(mostra-jogada 2 "verde" 4 "verde") ;#true mostra carta da mesa verde 2 e a carta da mão vermelha 2
+
+(define (mostra-jogada number_table color_table number_hand color_hand)
+  (above (text (boolean->string(jogada-válida? number_hand color_hand number_table color_table)) 20 (traduz-cor color_hand))
+  (beside
+  (desenha-carta number_table color_table)
+  (desenha-carta number_hand color_hand)
+
+  )))
+
+(mostra-jogada 2 "vermelho" 4 "vermelho") ;#true mostra carta da mesa vermelha 2 e a carta da mão vermelha 4
+(mostra-jogada 2 "verde" 4 "vermelho") ;#false mostra carta da mesa verde 2 e a carta da mão vermelha 4
+(mostra-jogada 2 "verde" 4 "verde") ;#true mostra carta da mesa verde 2 e a carta da mão vermelha 2
+                                  
 
