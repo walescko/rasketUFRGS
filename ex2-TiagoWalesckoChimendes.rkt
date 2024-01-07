@@ -4,7 +4,7 @@
 ;#lang racket
 (require 2htdp/image)
 
-;; Nome: 
+;; Nome: TIAGO WALESCKO CHIMENDES    matrícula 97641
 
 ;; Em cada questão, há um início da solução. Essas linhas estão
 ;; sempre comentadas para não causar erros de compilação, pois
@@ -21,16 +21,17 @@
 (define INVERTE -3)
 (define CURINGA -5)
 (define CURINGA_COMPRA4 -4)
+(define color_test "white")
 
 ;; Constantes que definem as imagens que aparecerão nas cartas especiais:
-(define IMG_PULA_VEZ  (text "Ø" 60 "black"))
-(define IMG_COMPRA2   (text "+2" 60 "black"))
-(define IMG_INVERTE   (text "«" 60 "black"))
+(define IMG_PULA_VEZ  (text "Ø" 60 color_test))
+(define IMG_COMPRA2   (text "+2" 60 color_test))
+(define IMG_INVERTE   (text "«" 60 color_test))
 (define IMG_CURINGA   empty-image)
-(define IMG_CURINGA_COMPRA4  (text "+4" 60 "black"))
+(define IMG_CURINGA_COMPRA4  (text "+4" 60 color_test))
 
 ;; Constantes que definem as imagens que serão usadas para desenhar as cartas:
-(define CIRCULO_BRANCO (circle 40 "solid""white"))
+(define CIRCULO_BRANCO (circle 40 "solid" "white"))
 
 (define QUADRADOS_COLORIDOS
          (above                                  
@@ -39,7 +40,7 @@
             (beside (rectangle 50 75 "solid" "yellow")
                     (rectangle 50 75 "solid" "blue"))))
 
-(define CONTORNO_PRETO (rectangle 110 160 "outline" "white"))
+(define CONTORNO_PRETO (rectangle 110 160 "outline" color_test))
 ;usando a borda branca porque no meu computador estou usando o racket no modo dark.
 
 (define CORINGA (overlay CIRCULO_BRANCO CONTORNO_PRETO QUADRADOS_COLORIDOS))
@@ -79,12 +80,11 @@ CORINGA
     [(string=? color "verde") "green"]
     [(string=? color "vermelho") "red"]
     [(string=? color "amarelo") "yellow"]
+    [(string=? color "preto") "white"]
     [else "colors"]
     
     ))
-    
-    
-
+        
 ;;; Testes:
 (check-expect (traduz-cor "vermelho") "red")
 (check-expect (traduz-cor "verde") "green")
@@ -115,17 +115,61 @@ CORINGA
 
 
 (define (FUNDO color)
-  (rectangle 100 150 "solid" (traduz-cor color))
-     )
+  (rectangle 100 150 "solid" (traduz-cor color)))
 
 (define (escolhe-fundo color)
-  (overlay CIRCULO_BRANCO CONTORNO_PRETO (
-                                          cond
-                                           ["colorido" QUADRADOS_COLORIDOS]
-                                           [else (FUNDO color)])))
+  (overlay CIRCULO_BRANCO CONTORNO_PRETO (FUNDO color)))
 
 (escolhe-fundo "amarelo")
 (escolhe-fundo "vermelho")
 (escolhe-fundo "azul")
 (escolhe-fundo "verde")
-(escolhe-fundo "colorido")
+
+;;===============================================================
+;; 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 
+;;===============================================================
+
+;; ========================
+;; ESCOLHE-SIMBOLO:
+;; ========================
+;; escolhe-simbolo: ... -> ....
+;; Dado um número, que pode ser de 0 a 9 ou as constantes referentes às
+;; cartas especiais de UNO, devolve uma imagem que representa este valor na carta.
+;; Exemplos:
+;;    (escolhe-simbolo 8) devolve a imagem do número oito
+;;    (escolhe-simbolo COMPRA2) devolve a imagem +2
+
+;(define (escolhe-simbolo ...)
+;  (cond
+;      ;; se a o valor for um número de 0 a 9, devolve a imagem deste valor
+;      ...
+;      ;; se a o valor for o da constante COMPRA2, desenha a imagem +2
+;      ...
+;      ;; se a o valor for o da constante INVERTE, desenha a imagem  «
+;      ...  
+;      ;; se a o valor for o da constante PULA_VEZ, desenha a imagem Ø -1
+;      ...
+;      ;; se a o valor for o da constante CURINGA, não desenha nada (devolve uma imagem vazia) -5
+;      ...
+;      ;; se a o valor for o da constante CURINGA_COMPRA4, devolve +4 +4
+;      ...))
+
+(define size 60)
+(define (escolha-simbolo simbolo color)
+  (cond
+    [(and (> simbolo  0) (< simbolo 10))  (text (number->string simbolo) size (traduz-cor color))]
+    [(= simbolo -1) IMG_PULA_VEZ]
+    [(= simbolo -2) IMG_COMPRA2]
+    [(= simbolo -3) IMG_INVERTE]
+    [(= simbolo -4) IMG_CURINGA_COMPRA4]
+    [(= simbolo -5) IMG_CURINGA]
+
+))
+
+(escolha-simbolo 9 "verde")
+(escolha-simbolo -1 "preto")
+(escolha-simbolo -2 "preto")
+(escolha-simbolo -3 "preto")
+(escolha-simbolo -4 "preto")
+(escolha-simbolo -5 "preto")
+
