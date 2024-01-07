@@ -63,11 +63,23 @@
 ;    ;; senão, devolver "colors"
 ;    [else ....]))
 ;
-;;; Testes:
-;(check-expect (traduz-cor "vermelho") "red")
-;(check-expect (traduz-cor "verde") "green")
-;(check-expect (traduz-cor "colorido") "colors")
+(define (traduz-cor color)
+  (cond
+    [(string=? color "azul") "blue"]
+    [(string=? color "verde") "green"]
+    [(string=? color "vermelho") "red"]
+    [(string=? color "amarelo") "yellow"]
+    [(string=? color "colorido") "colors"]
+    [else "Cor inválida"]
+    ))
+    
+    
 
+;;; Testes:
+(check-expect (traduz-cor "vermelho") "red")
+(check-expect (traduz-cor "verde") "green")
+(check-expect (traduz-cor "colorido") "colors")
+(check-expect (traduz-cor "abobrinha") "Cor inválida")
 ;;===============================================================
 ;; 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
 ;;===============================================================
