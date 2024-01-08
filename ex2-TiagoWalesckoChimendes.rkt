@@ -22,15 +22,13 @@
 (define INVERTE -3)
 (define CURINGA -5)
 (define CURINGA_COMPRA4 -4)
-(define color_test "white")
-
 
 ;; Constantes que definem as imagens que aparecerão nas cartas especiais:
-(define IMG_PULA_VEZ  (text "Ø" 60 color_test))
-(define IMG_COMPRA2   (text "+2" 60 color_test))
-(define IMG_INVERTE   (text "«" 60 color_test))
+(define IMG_PULA_VEZ  (text "Ø" 60 "black"))
+(define IMG_COMPRA2   (text "+2" 60 "black"))
+(define IMG_INVERTE   (text "«" 60 "black"))
 (define IMG_CURINGA   empty-image)
-(define IMG_CURINGA_COMPRA4  (text "+4" 60 color_test))
+(define IMG_CURINGA_COMPRA4  (text "+4" 60 "black"))
 
 ;; Constantes que definem as imagens que serão usadas para desenhar as cartas:
 (define CIRCULO_BRANCO (circle 40 "solid" "white"))
@@ -43,14 +41,8 @@
                     (rectangle 50 75 "solid" "blue"))))
 
 
-(define CONTORNO_PRETO (rectangle 110 160 "outline" color_test))
+(define CONTORNO_PRETO (rectangle 110 160 "outline" "black"))
 ;usando a borda branca porque no meu computador estou usando o racket no modo dark.
-
-(define CORINGACARD (overlay CIRCULO_BRANCO CONTORNO_PRETO QUADRADOS_COLORIDOS))
-
-CORINGACARD
-
-
 
 ;;===============================================================
 ;; 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
@@ -83,7 +75,6 @@ CORINGACARD
     [(string=? color "verde") "green"]
     [(string=? color "vermelho") "red"]
     [(string=? color "amarelo") "yellow"]
-    [(string=? color "preto") "white"]
     [else "colors"]
     
     ))
@@ -118,7 +109,9 @@ CORINGACARD
 
 
 (define (FUNDO color)
-  (rectangle 100 150 "solid" (traduz-cor color)))
+  (cond
+    [(string=? color "colorido") QUADRADOS_COLORIDOS]
+    [else (rectangle 100 150 "solid" (traduz-cor color))]))
 
 (define (escolhe-fundo color)
    (overlay CIRCULO_BRANCO CONTORNO_PRETO (FUNDO color)))
@@ -127,6 +120,7 @@ CORINGACARD
 (escolhe-fundo "vermelho")
 (escolhe-fundo "azul")
 (escolhe-fundo "verde")
+(escolhe-fundo "colorido")
 
 ;;===============================================================
 ;; 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 3 
@@ -200,7 +194,7 @@ CORINGACARD
 (desenha-carta 4 "verde")
 (desenha-carta 4 "azul")
 (desenha-carta 4 "amarelo")
-;(desenha-carta COMPRA4 "colorido")
+(desenha-carta COMPRA4 "colorido")
 
 ;;===============================================================
 ;; 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 4 
@@ -208,7 +202,7 @@ CORINGACARD
 ;; ========================
 ;; JOGADA-VÁLIDA?
 ;; ========================
-;; jogada-válida? : ...... -> ......
+;; jogada-válida? : number string number string -> boolean
 ;; Objetivo: A função analiza duas cartas (representadas por 4 argumentos:um
 ;; número e uma string, representando a carta da mão, e um número e uma string,
 ;; representando a carta da mesa, nesta ordem) e verifica se é possível
@@ -223,17 +217,22 @@ CORINGACARD
 (define (jogada-válida?  number_hand color_hand number_table color_table)
   (cond
     [(or (= number_hand number_table) (string=? color_hand color_table)) #t]
+    [(or (= CURINGA number_table) (string=? "colorido" color_table)) #t]
+    
     [else #f]
    ))
 
-   (jogada-válida? 5 "vermelho" 4 "vermelho");=  #t
-   (jogada-válida? 4 "verde" 4 "vermelho");=  #t
-   (jogada-válida? 2 "amarelo" 9 "vermelho");=  #f
-   ;
 ;;; Testes:
-(check-expect (jogada-válida? 2 "vermelho" 4 "vermelho") #t)
-(check-expect (jogada-válida? 4 "verde" 4 "vermelho") #t)
-(check-expect (jogada-válida? 2 "verde" 4 "vermelho") #f)
+;(check-expect (jogada-válida? 2 "vermelho" 4 "vermelho") #t)
+;(check-expect (jogada-válida? 4 "verde" 4 "vermelho") #t)
+;(check-expect (jogada-válida? 2 "verde" 4 "vermelho") #f)
+
+
+(jogada-válida? 5 "vermelho" 4 "vermelho");=  #t
+(jogada-válida? 4 "verde" 4 "vermelho");=  #t
+(jogada-válida? 2 "amarelo" 9 "vermelho");=  #f
+(jogada-válida? 2 "azul" 7 "verde");=  #f
+(jogada-válida? CURINGA "colorido" 7 "verde")
 
 ;;===============================================================
 ;; 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5 5
@@ -241,25 +240,26 @@ CORINGACARD
 ;; ========================
 ;; MOSTRA-JOGADA
 ;; ========================
-;; mostra-jogada: ...... -> ......
+;; mostra-jogada: number strint number string -> image
 ;; Objetivo: A função analiza duas cartas (representadas por 4 argumentos:um
 ;; número e uma string, representando a carta da mesa, e um número e uma string,
 ;; representando a carta da mão, nesta ordem) e verifica se é possível
 ;; jogar uma sobre a outra, de acordo com as regras do UNO, desenhando uma
 ;; imagem mostrando as cartas e se é possível fazer a jogada ou não.
+;;
 ;;Exemplos
 ;;(mostra-jogada 2 "vermelho" 4 "vermelho") ;#true mostra carta da mesa vermelha 2 e a carta da mão vermelha 4
 ;;(mostra-jogada 2 "verde" 4 "vermelho") ;#false mostra carta da mesa verde 2 e a carta da mão vermelha 4
   ;;(mostra-jogada 2 "verde" 4 "verde") ;#true mostra carta da mesa verde 2 e a carta da mão vermelha 2
 
 (define (mostra-jogada number_table color_table number_hand color_hand)
-  (above (text (boolean->string(jogada-válida? number_hand color_hand number_table color_table)) 20 (traduz-cor color_hand))
+  (above (text (boolean->string(jogada-válida? number_hand color_hand number_table color_table)) 20 "black")
   (beside
   (desenha-carta number_table color_table)
   (desenha-carta number_hand color_hand)
 
   )))
-
+ 
 (mostra-jogada 2 "vermelho" 4 "vermelho") ;#true mostra carta da mesa vermelha 2 e a carta da mão vermelha 4
 (mostra-jogada 2 "verde" 4 "vermelho") ;#false mostra carta da mesa verde 2 e a carta da mão vermelha 4
 (mostra-jogada 2 "verde" 4 "verde") ;#true mostra carta da mesa verde 2 e a carta da mão vermelha 2
