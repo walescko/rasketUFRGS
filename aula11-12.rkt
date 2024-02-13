@@ -6,12 +6,6 @@
 ;;Se a pilha p está vazia, devolver false (não tem ás de copas)
 ;;Se o primeiro elemento da pilha p é às de copas, develver true
 ;;Senão, verificar se tem ás de copas no restante da pilha.
-;;(define (AsCopas? p)
-;;  (cond
-    ;;[(empty? p) false]
-  ;;  [(AsCopas? (first p) true)]
-;;    [else (AsCopas? (rest p))]))
-
 (define ÁsCopas 101)
 (define DezOuros 210)
 (define RainhaPaus 412)
@@ -28,8 +22,44 @@
 
 (check-expect (numero-da-carta DezOuros) 10)
 (check-expect (numero-da-carta ÁsCopas) 1)
-(check-expect (naipe-da-carta DezOuros) 10)
-(check-expect (naipe-da-carta ÁsCopas) 1)
+(check-expect (naipe-da-carta DezOuros) "Ouros")
+(check-expect (naipe-da-carta ÁsCopas) "Copas")
+(check-expect (naipe-da-carta RainhaPaus) "Paus")
+(check-expect (naipe-da-carta 312) "Espadas")
+(check-expect (naipe-da-carta 211) "Ouros")
 
+(define (AsDeCopas? c)
+  (and (= (numero-da-carta c) 1)
+       (string=? (naipe-da-carta c) "Copas")))
 
+(check-expect (AsDeCopas? DezOuros) false)
+(check-expect (AsDeCopas? ÁsCopas) true)
   
+;; Carta = {101,102,103,104,105,106,107,108,109,110,111,112,113, 
+;;          201,202,203,204,205,206,207,208,209,210,211,212,213,
+;;          301,302,303,304,305,306,307,308,309,310,311,312,313,
+;;          401,402,403,404,405,406,407,408,409,410,411,412,413}
+
+(define PILHA1 (cons RainhaPaus
+                     (cons DezOuros
+                           (cons ÁsCopas empty))))
+
+
+(define PILHA2 (cons RainhaPaus
+                     (cons DezOuros
+                           (cons RainhaPaus empty))))
+
+(define (temÁsCopas? p)
+  (cond
+    [(empty? p) false]
+    [(AsDeCopas? (first p)) true]
+    [else (temÁsCopas? (rest p))]))
+
+(check-expect (temÁsCopas? PILHA1) true)
+(check-expect (temÁsCopas? PILHA2) false)
+
+
+
+
+
+
